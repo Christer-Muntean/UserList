@@ -3,10 +3,13 @@ package com.example.userlist
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.preference.PreferenceManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.gson.Gson
 import kotlinx.android.synthetic.main.activity_main.*
+
 
 class MainActivity : AppCompatActivity(), UserListInterface {
 
@@ -28,11 +31,13 @@ class MainActivity : AppCompatActivity(), UserListInterface {
         "41914191"
     )
 
-    val users = listOf(userOne, userTwo, userOne, userTwo)
+    val users = mutableListOf(userOne, userTwo, userOne, userTwo)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        getUsersInSharedPref()
 
         viewManager = LinearLayoutManager(this)
 
@@ -43,6 +48,25 @@ class MainActivity : AppCompatActivity(), UserListInterface {
             layoutManager = viewManager
             adapter = viewAdapter
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+        fab.setOnClickListener {
+            navigateToAddUser()
+        }
+    }
+
+    private fun getUsersInSharedPref(){
+        val saved_values = PreferenceManager.getDefaultSharedPreferences(
+            applicationContext
+        )
+        val sharedPrefUsers = saved_values.getString(getString(R.string.shared_pref_users), "")
+
+        val gson = Gson()
+        val user = gson.fromJson(sharedPrefUsers, UserDetails::class.java)
+        users.add(user)
     }
 
     private fun navigate(userDetails: UserDetails) {
@@ -58,6 +82,11 @@ class MainActivity : AppCompatActivity(), UserListInterface {
 
     override fun onCallClicked(tel: String) {
         val intent = Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", tel, null))
+        startActivity(intent)
+    }
+
+    private fun navigateToAddUser(){
+        val intent = Intent(this, AddUserActivity::class.java)
         startActivity(intent)
     }
 }
