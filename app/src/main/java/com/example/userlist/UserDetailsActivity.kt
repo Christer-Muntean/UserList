@@ -25,6 +25,8 @@ class UserDetailsActivity : AppCompatActivity() {
 
             Picasso.get().load(user?.imageUrl).into(profile_imageView)
             name_textView.text = user?.name
+            email_textView.text = user?.email
+            tel_textView.text = user?.tel
         }
     }
 

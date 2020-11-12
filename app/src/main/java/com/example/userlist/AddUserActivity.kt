@@ -31,13 +31,33 @@ class AddUserActivity : AppCompatActivity() {
         }
     }
 
-    private fun addUser(userJson: String) {
-        val saved_values = PreferenceManager.getDefaultSharedPreferences(
+    /*private fun addUser(userJson: String) {
+        val sharedPref = PreferenceManager.getDefaultSharedPreferences(
             applicationContext
         )
-        val editor = saved_values.edit()
-        editor.putString(getString(R.string.shared_pref_users), userJson)
+        val editor = sharedPref.edit()
+
+        editor.putString("pref_user", userJson)
         editor.commit()
+        onBackPressed()
+    }*/
+
+    private fun addUser(userJson: String) {
+        val sharedPref = PreferenceManager.getDefaultSharedPreferences(
+                applicationContext
+        )
+        val editor = sharedPref.edit()
+
+
+        //Get users from sharedPref
+        val users = sharedPref.getStringSet("list_users", setOf())?.toMutableList()
+
+        users?.add(userJson)
+
+        //Add new users list to shared pref
+        editor.putStringSet("list_users", users?.toSet())
+        editor.commit()
+
         onBackPressed()
     }
 }

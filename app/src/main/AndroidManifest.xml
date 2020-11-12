@@ -12,10 +12,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.UserList">
+        <activity android:name=".SettingsActivity"></activity>
         <activity
             android:name=".AddUserActivity"
             android:label="@string/title_activity_add_user"
-            android:theme="@style/Theme.UserList.NoActionBar"></activity>
+            android:theme="@style/Theme.UserList.NoActionBar" />
         <activity android:name=".UserDetailsActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>

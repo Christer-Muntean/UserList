@@ -1,6 +1,7 @@
 package com.example.userlist
 
 import android.content.Intent
+import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.preference.PreferenceManager
@@ -37,8 +38,6 @@ class MainActivity : AppCompatActivity(), UserListInterface {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        getUsersInSharedPref()
-
         viewManager = LinearLayoutManager(this)
 
         viewAdapter = MyAdapter(users, this)
@@ -56,17 +55,45 @@ class MainActivity : AppCompatActivity(), UserListInterface {
         fab.setOnClickListener {
             navigateToAddUser()
         }
+
+        settings_button.setOnClickListener {
+            navigateToSettings()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        setAppSettingColor()
+        getUsersInSharedPref()
     }
 
     private fun getUsersInSharedPref(){
-        val saved_values = PreferenceManager.getDefaultSharedPreferences(
+        val sharedPref = PreferenceManager.getDefaultSharedPreferences(
             applicationContext
         )
-        val sharedPrefUsers = saved_values.getString(getString(R.string.shared_pref_users), "")
+        var sharedPrefUsers = sharedPref.getStringSet("list_users", setOf())
 
         val gson = Gson()
-        val user = gson.fromJson(sharedPrefUsers, UserDetails::class.java)
-        users.add(user)
+
+        sharedPrefUsers = sharedPrefUsers?.reversed()?.toMutableSet()
+
+        sharedPrefUsers?.let {
+            for (user in it) {
+                val user = gson.fromJson(user, UserDetails::class.java)
+
+                var doesUserExist = false
+                for (userInList in users){
+                    if(userInList.email == user.email){
+                        doesUserExist = true
+                    }
+                }
+
+                if(doesUserExist == false){
+                    users.add(user)
+                    viewAdapter.notifyDataSetChanged()
+                }
+            }
+        }
     }
 
     private fun navigate(userDetails: UserDetails) {
@@ -85,8 +112,28 @@ class MainActivity : AppCompatActivity(), UserListInterface {
         startActivity(intent)
     }
 
-    private fun navigateToAddUser(){
+    private fun navigateToAddUser() {
         val intent = Intent(this, AddUserActivity::class.java)
         startActivity(intent)
+    }
+
+    private fun navigateToSettings() {
+        val intent = Intent(this, SettingsActivity::class.java)
+        startActivity(intent)
+    }
+
+    private fun setAppSettingColor() {
+        val sharedPref = PreferenceManager.getDefaultSharedPreferences(
+            applicationContext
+        )
+
+        var settingsColor = sharedPref.getString("color_setting", "")
+
+        if (settingsColor == "dark") {
+            mainContent.setBackgroundColor(Color.BLACK)
+        }
+        else if (settingsColor == "light") {
+            mainContent.setBackgroundColor(Color.WHITE)
+        }
     }
 }
